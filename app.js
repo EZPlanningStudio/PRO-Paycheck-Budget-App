@@ -694,13 +694,13 @@ function bindEvents() {
             hamburger.style.display = "block";
         } else {
             panel.style.display = "block";
+            hamburger.style.display = "none";
             panel.style.animation = "none";
-            if (bills.length > 0) {
+            if ((data.bills || []).length > 0) {
                 requestAnimationFrame(() => {
                     panel.style.animation = "";
                 });
             }
-            hamburger.style.display = "none";
         }
 
     };
