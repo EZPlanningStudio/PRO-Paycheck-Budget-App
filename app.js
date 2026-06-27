@@ -6323,10 +6323,6 @@ function saveAccount() {
             data.accounts[idx] = { ...data.accounts[idx], name, type, startBalance, startDate };
         }
     } else {
-        if (data.accounts.length >= 20) {
-            alert("You can add up to 20 accounts.");
-            return;
-        }
         data.accounts.push({
             id: crypto.randomUUID(),
             name,
