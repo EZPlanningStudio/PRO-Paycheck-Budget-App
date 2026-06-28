@@ -5591,40 +5591,48 @@
            order: 3;
        }
 
-       .form-grid label:has(#billAmount) {
+       #billFromWrap {
            order: 4;
        }
 
-       #billPaidAmountWrap {
+       #billToWrap {
            order: 5;
        }
 
-       .form-grid label:has(#billDate) {
+       .form-grid label:has(#billAmount) {
            order: 6;
        }
 
-       #billPaidDateWrap {
+       #billPaidAmountWrap {
            order: 7;
        }
 
-       .form-grid label:has(#billPriority) {
+       .form-grid label:has(#billDate) {
            order: 8;
        }
 
-       #billFrequencyWrap {
+       #billPaidDateWrap {
            order: 9;
        }
 
-       #billIntervalWrap {
+       .form-grid label:has(#billPriority) {
            order: 10;
        }
 
-       #billEndDateWrap {
+       #billFrequencyWrap {
            order: 11;
        }
 
-       .form-grid label:has(#billNotes) {
+       #billIntervalWrap {
            order: 12;
+       }
+
+       #billEndDateWrap {
+           order: 13;
+       }
+
+       .form-grid label:has(#billNotes) {
+           order: 14;
        }
 
        .bill-names-grid,

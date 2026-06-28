@@ -1821,8 +1821,8 @@ function handleSaveBill(event) {
         endDate: els.billEndDate.value || null,
         notes: els.billNotes.value.trim(),
         paid: existing ? existing.paid : false,
-        fromAccount: document.getElementById("billFrom")?.value || null,
-        toAccount: document.getElementById("billTo")?.value || null
+        fromAccount: (document.getElementById("billFromWrap")?.style.display !== "none") ? (document.getElementById("billFrom")?.value || null) : null,
+        toAccount: (document.getElementById("billToWrap")?.style.display !== "none") ? (document.getElementById("billTo")?.value || null) : null
     };
 
     const fromVisible = document.getElementById("billFromWrap")?.style.display !== "none";
@@ -5771,7 +5771,7 @@ function saveBillNames(shouldSave = true) {
         const titleInput = column.querySelector(".bill-names-title-input");
         const title = titleInput ? titleInput.value.trim() : "";
 
-        const names = [...column.querySelectorAll(".bill-name-input")]
+        const names = [...column.querySelectorAll("input.bill-name-input")]
             .map(input => input.value.trim())
             .filter(Boolean);
 
@@ -5830,7 +5830,7 @@ function createBillNameInput(value = "") {
             row.remove();
         }
         row.setAttribute("draggable", "false");
-        saveBillNames(false);
+        saveBillNames(true);
     });
 
     input.addEventListener("keydown", (e) => {
