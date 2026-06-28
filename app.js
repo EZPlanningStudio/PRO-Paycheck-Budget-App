@@ -105,6 +105,15 @@ const defaultData = {
     debts: []
 };
 
+const CATEGORY_ALIASES = {
+    "income": "Income", "savings": "Savings", "bills": "Bills",
+    "expenses": "Expenses", "debt payments": "Debt Payments",
+    "investments": "Investments", "transfers": "Transfers"
+};
+function normalizeCategory(cat) {
+    return CATEGORY_ALIASES[cat?.toLowerCase()] || cat;
+}
+
 let data = loadData();
 let activeFilter = "all";
 let currentCalendarDate = new Date();
@@ -415,12 +424,13 @@ function normalizeAppData(rawData = {}) {
         },
         categories: (() => {
             const cats = Array.isArray(source.categories) ? source.categories : base.categories;
-            return cats.filter(c => c !== "Transfers");
+            return cats.filter(c => normalizeCategory(c) !== "Transfers").map(normalizeCategory);
         })(),
         bills: Array.isArray(source.bills)
             ? source.bills.map(bill => ({
                 ...base.billDefaults,
                 ...bill,
+                category: normalizeCategory(bill.category),
                 seriesId: bill.seriesId || bill.id || crypto.randomUUID(),
                 type: bill.type || "payment",
                 actualAmount: bill.actualAmount ?? null,
@@ -434,7 +444,9 @@ function normalizeAppData(rawData = {}) {
             }))
             : [],
         customCurrencies: Array.isArray(source.customCurrencies) ? source.customCurrencies : [],
-        billNameGroups: Array.isArray(source.billNameGroups) ? source.billNameGroups : [],
+        billNameGroups: Array.isArray(source.billNameGroups)
+            ? source.billNameGroups.map(g => ({ ...g, title: normalizeCategory(g.title) || g.title }))
+            : [],
         priorityNames: Array.isArray(source.priorityNames) ? source.priorityNames : base.priorityNames,
         monthlyBudgets: source.monthlyBudgets && typeof source.monthlyBudgets === "object" ? source.monthlyBudgets : {},
         paychecks: Array.isArray(source.paychecks) ? source.paychecks : [],
