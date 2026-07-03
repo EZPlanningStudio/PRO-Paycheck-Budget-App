@@ -275,7 +275,7 @@ function extendRecurringSeries() {
         switch (last.frequency) {
             case "daily": next.setDate(next.getDate() + last.interval); break;
             case "weekly": next.setDate(next.getDate() + 7 * last.interval); break;
-            case "monthly": next.setMonth(next.getMonth() + last.interval); break;
+            case "monthly": { const _dayL = next.getDate(); next.setDate(1); next.setMonth(next.getMonth() + last.interval); next.setDate(Math.min(_dayL, new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())); break; }
             case "yearly": next.setFullYear(next.getFullYear() + last.interval); break;
         }
 
@@ -1192,11 +1192,15 @@ function bindEvents() {
 
             const semiDay1El = document.getElementById("paycheckSemiDay1");
             const semiDay2El = document.getElementById("paycheckSemiDay2");
+            const monthlyDayEl = document.getElementById("paycheckMonthlyDay");
             if (field === semiDay1El) {
                 data.paycheckSettings.semiDay1 = parseInt(field.value) || 1;
             }
             if (field === semiDay2El) {
                 data.paycheckSettings.semiDay2 = parseInt(field.value) || 15;
+            }
+            if (field === monthlyDayEl) {
+                data.paycheckSettings.monthlyDay = parseInt(field.value) || 1;
             }
 
             saveData();
@@ -1745,7 +1749,7 @@ function generateRecurringBills(bill) {
         switch (bill.frequency) {
             case "daily": next.setDate(next.getDate() + bill.interval); break;
             case "weekly": next.setDate(next.getDate() + 7 * bill.interval); break;
-            case "monthly": next.setMonth(next.getMonth() + bill.interval); break;
+            case "monthly": { const _dayB = next.getDate(); next.setDate(1); next.setMonth(next.getMonth() + bill.interval); next.setDate(Math.min(_dayB, new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate())); break; }
             case "yearly": next.setFullYear(next.getFullYear() + bill.interval); break;
         }
         current = next;
@@ -1760,6 +1764,8 @@ function isActivated() {
 }
 
 function showActivationModal() {
+    document.getElementById("activationCodeInput").value = "";
+    document.getElementById("activationError").style.display = "none";
     document.getElementById("activationModal").classList.add("active");
 }
 
@@ -4254,6 +4260,8 @@ function loadPaycheckSettings() {
     if (semiDay1) semiDay1.value = ps.semiDay1 || "";
     if (semiDay2) semiDay2.value = ps.semiDay2 || "";
     if (semiStart) semiStart.value = ps.semiStartMonth || "";
+    const monthlyDay = document.getElementById("paycheckMonthlyDay");
+    if (monthlyDay) monthlyDay.value = ps.monthlyDay || "";
     updatePaycheckSetupVisibility();
 }
 
@@ -4261,11 +4269,13 @@ function updatePaycheckSetupVisibility() {
     const freq = data.paycheckSettings?.frequency || "custom";
     const isAuto = freq !== "custom";
     const isSemi = freq === "semimonthly";
-     document.getElementById("paycheckStartDateWrap").style.display = isAuto ? "" : "none";
+    const isMonthly = freq === "monthly";
+    document.getElementById("paycheckStartDateWrap").style.display = isAuto ? "" : "none";
     document.getElementById("paycheckNameWrap").style.display = isAuto ? "" : "none";
     document.getElementById("paycheckGenerateWrap").style.display = isAuto ? "" : "none";
-        const deleteAllWrap = document.getElementById("deleteAllPaychecksWrap");
-        if (deleteAllWrap) deleteAllWrap.style.display = (data.paychecks?.length > 0) ? "" : "none";
+    const deleteAllWrap = document.getElementById("deleteAllPaychecksWrap");
+    if (deleteAllWrap) deleteAllWrap.style.display = (data.paychecks?.length > 0) ? "" : "none";
+    document.getElementById("paycheckMonthlyWrap").style.display = isMonthly ? "" : "none";
     document.getElementById("paycheckSemiMonthlyWrap").style.display = isSemi ? "" : "none";
     document.getElementById("paycheckSemiMonthlyWrap2").style.display = isSemi ? "" : "none";
 }
@@ -4290,6 +4300,15 @@ function generatePaychecks() {
             start.setDate(d1);
         } else if (day > d1 && day < d2) {
             start.setDate(d2);
+        }
+    } else if (freq === "monthly") {
+        const d1 = parseInt(ps.monthlyDay) || 1;
+        const day = start.getDate();
+        if (day < d1) {
+            start.setDate(d1);
+        } else if (day > d1) {
+            start.setMonth(start.getMonth() + 1);
+            start.setDate(d1);
         }
     }
 
@@ -4349,6 +4368,9 @@ function generatePaychecks() {
             } else {
                 periodEnd = new Date(current.getFullYear(), current.getMonth() + 1, d1 - 1);
             }
+        } else if (freq === "monthly") {
+            const d1 = parseInt(ps.monthlyDay) || 1;
+            periodEnd = new Date(current.getFullYear(), current.getMonth() + 1, d1 - 1);
         }
 
         newPaychecks.push({
@@ -4371,6 +4393,9 @@ function generatePaychecks() {
             } else {
                 current = new Date(current.getFullYear(), current.getMonth() + 1, d1);
             }
+        } else if (freq === "monthly") {
+            const d1 = parseInt(ps.monthlyDay) || 1;
+            current = new Date(current.getFullYear(), current.getMonth() + 1, d1);
         }
     }
 

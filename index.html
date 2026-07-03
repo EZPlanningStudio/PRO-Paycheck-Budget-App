@@ -210,7 +210,7 @@
       </div>
 
       <div class="sidebar-copyright">
-        © 2026 EzPlanning Studio • <span id="appVersion"></span>
+        © 2026 Pro Paycheck Budget • <span id="appVersion"></span>
       </div>
       
     </aside>
@@ -933,13 +933,22 @@
                   <label style="margin-top:0;">
                     <span style="display:inline-flex; align-items:center; gap:4px;"><span class="help-icon"
                         data-help-title="⏱️ Frequency"
-                        data-help="<p>Select how often you get paid:</p><p><strong>Custom (manual):</strong> You create each paycheck yourself on the Paycheck Budget page.</p><p><strong>Weekly:</strong> Every 7 days.</p><p><strong>Bi-weekly:</strong> Every 14 days — most common in the US.</p><p><strong>Semi-monthly:</strong> Twice a month on fixed days you choose.</p>">⏱️</span>Frequency</span>
+                        data-help="<p>Select how often you get paid:</p><p><strong>Custom (manual):</strong> You create each paycheck yourself on the Paycheck Budget page.</p><p><strong>Weekly:</strong> Every 7 days.</p><p><strong>Bi-weekly:</strong> Every 14 days — most common in the US.</p><p><strong>Semi-monthly:</strong> Twice a month on fixed days you choose.</p><p><strong>Monthly:</strong> Once a month on a fixed day you choose.</p>">⏱️</span>Frequency</span>
                     <select id="paycheckFrequency" class="form-select">
                       <option value="custom">Custom (manual)</option>
                       <option value="weekly">Weekly</option>
                       <option value="biweekly">Bi-weekly</option>
                       <option value="semimonthly">Semi-monthly</option>
+                      <option value="monthly">Monthly</option>
                     </select>
+                  </label>
+                </div>
+                <div id="paycheckMonthlyWrap" style="display:none;">
+                  <label style="margin-top:0;">
+                    <span style="display:inline-flex; align-items:center; gap:4px;"><span class="help-icon"
+                        data-help-title="📆 Pay Day"
+                        data-help="<p>Enter the day of the month you receive your paycheck. For example, enter <strong>15</strong> if you get paid on the 15th of each month.</p><p>Each period will run from that day to the day before the next payday.</p>">📆</span>Pay day of the month</span>
+                    <input id="paycheckMonthlyDay" type="number" min="1" max="28" placeholder="e.g. 15" />
                   </label>
                 </div>
                 <div id="paycheckSemiMonthlyWrap" style="display:none;">
