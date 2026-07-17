@@ -1217,6 +1217,16 @@
        box-shadow: var(--shadow);
        padding: 20px;
        margin-bottom: 18px;
+       position: relative;
+   }
+
+   .page-corner-info-icon {
+       position: absolute;
+       top: 5px;
+       right: 4px;
+       font-size: 15px;
+       cursor: pointer;
+       z-index: 5;
    }
 
    .panel h2 {
@@ -1625,6 +1635,15 @@
        display: flex;
        align-items: center;
        gap: 4px;
+   }
+
+   .sidebar-backup-quick {
+       margin-left: auto;
+   }
+
+   .sidebar-backup-quick .history-btn svg {
+       width: 15px;
+       height: 15px;
    }
 
    .sidebar-collapse-btn {
@@ -2123,6 +2142,11 @@
        top: 50%;
        bottom: auto;
        transform: translateY(-50%);
+   }
+
+   .sidebar-backup-quick .app-tooltip {
+       left: auto;
+       right: calc(100% + 10px);
    }
 
    .priority-inline {
@@ -2855,6 +2879,16 @@
        border: none !important;
        border-radius: 0 !important;
        padding-left: 8px;
+   }
+
+   .amount-input-wrap input:focus {
+       outline: none;
+       box-shadow: none;
+   }
+
+   .amount-input-wrap:focus-within {
+       border-color: var(--pink);
+       box-shadow: 0 0 0 4px var(--pink-soft);
    }
 
    .currency-symbol-overlay {
@@ -3941,6 +3975,29 @@
        line-height: 1;
    }
 
+   .help-icon-tooltip {
+       position: fixed;
+       background: var(--card);
+       color: var(--text-h2);
+       padding: 6px 10px;
+       border-radius: 10px;
+       border: 1px solid var(--line);
+       box-shadow: var(--shadow-soft);
+       font-size: 11px;
+       font-weight: 600;
+       white-space: nowrap;
+       opacity: 0;
+       visibility: hidden;
+       pointer-events: none;
+       transition: opacity 0.15s ease;
+       z-index: 9999;
+   }
+
+   .help-icon-tooltip.active {
+       opacity: 1;
+       visibility: visible;
+   }
+
 
    .category-row {
        display: grid;
@@ -5013,6 +5070,11 @@
            height: 28px;
        }
 
+       .sidebar-top-bar .sidebar-backup-quick .history-btn svg {
+           width: 20px;
+           height: 20px;
+       }
+
        .sidebar-top-bar .history-btn {
            padding: 8px;
        }
@@ -5194,6 +5256,9 @@
            margin-bottom: 16px;
            flex-direction: row;
        }
+
+       #filtersMobileBar > .help-icon { margin-left: auto; margin-right: 10px; font-size: 12px; }
+       #calFiltersMobileBar > .help-icon { margin-left: auto; margin-right: 10px; font-size: 12px; }
 
        #calAddBillBtnMobile,
        #addBillBtnMobile {
@@ -6053,7 +6118,6 @@
     border-left-width: 5px;
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
-    overflow: hidden;
 }
 
 .acc-page-card--cash       { border-left-color: var(--yellow); }
@@ -6083,22 +6147,30 @@
 /* ── Card header (clickable) ──────────────────────────────── */
 
 .acc-page-card-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+        "name balance ctrls"
+        "type balance ctrls";
     align-items: center;
-    gap: 12px;
+    column-gap: 14px;
+    row-gap: 3px;
     padding: 14px 16px;
     cursor: pointer;
     user-select: none;
     transition: background 0.12s;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 9px;
 }
 
 .acc-page-card-header:hover { filter: brightness(0.96); }
 
 .acc-page-card-title {
+    grid-area: name;
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
     min-width: 0;
 }
 
@@ -6115,9 +6187,9 @@
     text-overflow: ellipsis;
 }
 
-.acc-page-type { font-size: 11px; color: var(--muted); font-weight: 500; }
+.acc-page-type { grid-area: type; font-size: 11px; color: var(--muted); font-weight: 500; }
 
-.acc-page-balance-wrap { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+.acc-page-balance-wrap { grid-area: balance; display: flex; flex-direction: column; align-items: flex-end; align-self: center; }
 
 .acc-page-balance-label {
     font-size: 10px;
@@ -6126,7 +6198,7 @@
     text-transform: uppercase;
 }
 
-.acc-page-balance { font-size: 16px; font-weight: 700; line-height: 1.2; }
+.acc-page-balance { font-size: 16px; font-weight: 700; line-height: 1.2; text-align: right; }
 
 .acc-balance--positive { color: var(--priority-4-color); }
 .acc-balance--negative { color: var(--red); }
@@ -6148,15 +6220,15 @@
     grid-template-columns: repeat(4, 1fr);
     border-top: 1px solid var(--line);
     background: var(--bg);
+    border-bottom-left-radius: 9px;
+    border-bottom-right-radius: 9px;
 }
 
 .acc-page-stat {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 10px 8px;
+    padding: 10px 14px;
     border-right: 1px solid var(--line);
-    text-align: center;
 }
 
 .acc-page-stat:last-child { border-right: none; }
@@ -6185,7 +6257,7 @@
 
 /* ── Transactions table ───────────────────────────────────── */
 
-.acc-page-transactions { border-top: 1px solid var(--line); }
+.acc-page-transactions { border-top: 1px solid var(--line); border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
 
 .acc-tx-table { max-height: 230px; overflow-y: auto; }
 .acc-tx-table::-webkit-scrollbar { width: 4px; }
@@ -6219,6 +6291,12 @@
 .acc-page-card--savings    .acc-tx-header { background: var(--purple-soft); color: var(--purple-text); }
 .acc-page-card--credit     .acc-tx-header { background: var(--pink-soft);   color: var(--pink-text); }
 .acc-page-card--investment .acc-tx-header { background: var(--blue-soft);   color: var(--blue-text); }
+
+.acc-tx-header .acc-tx-date,
+.acc-tx-header .acc-tx-cat,
+.acc-tx-header .acc-tx-status,
+.acc-tx-header .acc-tx-running,
+.acc-tx-header .acc-tx-amount { font-size: inherit; font-weight: inherit; color: inherit; }
 
 .acc-tx-row:last-child { border-bottom: none; }
 
@@ -6282,6 +6360,8 @@
 
 .acc-page-empty p { margin: 4px 0; font-size: 14px; }
 
+.acc-empty-filter { text-align: center; padding: 24px; color: var(--muted); font-size: 14px; }
+
 .acc-link-btn {
     background: none;
     border: none;
@@ -6296,9 +6376,59 @@
 
 .acc-link-btn:hover { opacity: 0.8; }
 
+.settings-app-divider {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin: 24px 0 4px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+.settings-app-divider > .help-icon { font-size: 12px; }
+
+.menu-vis-heading {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.menu-vis-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.menu-vis-row:last-child { border-bottom: none; }
+
+.menu-vis-label { font-size: 14px; font-weight: 600; color: var(--text-h2); }
+
+.menu-vis-right { display: flex; align-items: center; gap: 10px; }
+
+.menu-vis-status { font-size: 12px; color: var(--muted); }
+
 /* ── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 700px) {
+    .acc-page-card-header {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "name balance"
+            "type ctrls";
+        row-gap: 4px;
+    }
+
+    .acc-page-balance-label { display: none; }
+
     .acc-page-stats { grid-template-columns: repeat(2, 1fr); }
 
     .acc-page-stat:nth-child(2) { border-right: none; }
@@ -6322,3 +6452,42 @@
 
     .acc-page-balance { font-size: 15px; }
 }
+
+.dt-debt-ctrls { grid-area: ctrls; display: flex; align-items: center; gap: 4px; justify-self: end; }
+
+.acc-page-edit { background: none !important; border: none !important; opacity: 0.5; width: 32px; height: 32px; padding: 0; }
+.acc-page-edit:hover { opacity: 1; background: none !important; }
+.acc-page-card--cash       .acc-page-edit { color: var(--yellow-text) !important; }
+.acc-page-card--bank       .acc-page-edit { color: var(--mint-text) !important; }
+.acc-page-card--savings    .acc-page-edit { color: var(--purple-text) !important; }
+.acc-page-card--credit     .acc-page-edit { color: var(--pink-text) !important; }
+.acc-page-card--investment .acc-page-edit { color: var(--blue-text) !important; }
+
+.acc-cc-utilization { padding: 6px 16px 10px; border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+.acc-cc-util-labels { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 12px; }
+.acc-cc-util-pct { font-weight: 700; color: var(--text); }
+.acc-cc-util-info { color: var(--muted); }
+.acc-cc-seg--low    { background: var(--priority-4-color); }
+.acc-cc-seg--medium { background: var(--yellow-text); }
+.acc-cc-seg--high   { background: var(--red); }
+
+.acc-add-btn {
+    background: var(--peach);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.acc-add-btn:hover { opacity: 0.88; }
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toolbar-actions > .help-icon { font-size: 12px; cursor: pointer; }

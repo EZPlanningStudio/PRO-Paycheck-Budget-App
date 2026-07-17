@@ -51,6 +51,26 @@
             <span class="app-tooltip">Redo</span>
           </button>
         </div>
+        <div class="sidebar-top-bar-actions sidebar-backup-quick">
+          <button class="history-btn app-tooltip-trigger" id="quickExportBtn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="app-tooltip">Export Backup</span>
+          </button>
+          <button class="history-btn app-tooltip-trigger" id="quickImportBtn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span class="app-tooltip">Import Backup</span>
+          </button>
+        </div>
         <button id="mobileCloseBtn" class="modal-close-btn" type="button">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9"
             stroke-linecap="round" stroke-linejoin="round">
@@ -123,11 +143,10 @@
               <span class="app-tooltip">Paycheck Budget</span>
             </button>
             <button data-section="monthly" class="menu-link app-tooltip-trigger">
-              <svg class="menu-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+              <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="12" width="4" height="6" rx="1" />
-                <rect x="8" y="8" width="4" height="10" rx="1" />
-                <rect x="14" y="4" width="4" height="14" rx="1" />
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
               <span class="menu-label">Monthly Insights</span>
               <span class="app-tooltip">Monthly Insights</span>
@@ -135,8 +154,9 @@
             <button data-section="yearly" class="menu-link app-tooltip-trigger">
               <svg class="menu-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="2,16 6,10 11,13 18,4" />
-                <circle cx="18" cy="4" r="2" fill="currentColor" stroke="none" />
+                <rect x="2" y="12" width="4" height="6" rx="1" />
+                <rect x="8" y="8" width="4" height="10" rx="1" />
+                <rect x="14" y="4" width="4" height="14" rx="1" />
               </svg>
               <span class="menu-label">Yearly Overview</span>
               <span class="app-tooltip">Yearly Overview</span>
@@ -164,6 +184,15 @@
               </svg>
               <span class="menu-label">Quick Start Guide</span>
               <span class="app-tooltip">Quick Start Guide</span>
+            </button>
+            <button data-section="contact" class="menu-link app-tooltip-trigger">
+              <svg class="menu-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="10" cy="8.5" rx="8" ry="6" />
+                <path d="M7 14 L5 17 L9.5 14.3" />
+              </svg>
+              <span class="menu-label">Contact</span>
+              <span class="app-tooltip">Contact</span>
             </button>
             <button data-section="settings" class="menu-link app-tooltip-trigger">
               <svg class="menu-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
@@ -280,7 +309,10 @@
                 </select>
               </div>
             </div>
-            <button class="btn add-bill-btn" id="addBillBtn">+ Add Transaction</button>
+            <div class="toolbar-actions">
+              <span class="help-icon" data-help-title="📋 Transaction List" data-help="&lt;strong&gt;Step 1 — Add and browse&lt;/strong&gt;&lt;br&gt;Every transaction — income, savings, bills, expenses, debt payments, transfers — shows up here, sorted by date. Use &quot;+ Add Transaction&quot; to create a new one.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Filter what you see&lt;/strong&gt;&lt;br&gt;Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, category, or a specific month/year. Click &quot;All&quot; to reset every filter at once.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — Manage each transaction&lt;/strong&gt;&lt;br&gt;Click the checkmark button to mark a transaction Paid or Unpaid, the pencil to Edit it, or the trash icon to delete it. For a recurring transaction, deleting gives you the choice between removing just that one occurrence or the entire series.">ℹ️</span>
+              <button class="btn add-bill-btn" id="addBillBtn">+ Add Transaction</button>
+            </div>
           </div>
 
           <div class="filters-mobile-bar" id="filtersMobileBar">
@@ -289,6 +321,7 @@
                 data-help="Use filters to narrow down your transactions by status, priority, category, month or year.">🎛️</span>
               Filters
             </button>
+            <span class="help-icon" data-help-title="📋 Transaction List" data-help="&lt;strong&gt;Step 1 — Add and browse&lt;/strong&gt;&lt;br&gt;Every transaction — income, savings, bills, expenses, debt payments, transfers — shows up here, sorted by date. Use &quot;+ Add Transaction&quot; to create a new one.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Filter what you see&lt;/strong&gt;&lt;br&gt;Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, category, or a specific month/year. Click &quot;All&quot; to reset every filter at once.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — Manage each transaction&lt;/strong&gt;&lt;br&gt;Click the checkmark button to mark a transaction Paid or Unpaid, the pencil to Edit it, or the trash icon to delete it. For a recurring transaction, deleting gives you the choice between removing just that one occurrence or the entire series.">ℹ️</span>
             <button class="btn add-bill-btn" id="addBillBtnMobile">+ Add Transaction</button>
           </div>
 
@@ -401,11 +434,11 @@
 
               <label>
                 <span style="display:inline-flex; align-items:center; gap:4px;"><span class="help-icon"
-                    data-help-title="💰 Amount"
-                    data-help="Enter the amount for this transaction. Always enter a positive number — the transaction type (Deposit, Withdrawal, Payment, etc.) determines the direction of the money.">💰</span>Amount</span>
+                    data-help-title="💰 Planned Amount"
+                    data-help="Enter the amount you're planning for this transaction. Always enter a positive number — the transaction type (Received, Returned, Deposit, Withdrawal, Payment, etc.) determines the direction of the money.&lt;br&gt;&lt;br&gt;Making a partial or extra payment toward something you already planned? Enter &lt;strong&gt;0&lt;/strong&gt; here instead of a new planned amount — a &quot;New/Paid Amount&quot; field will appear for the real amount, without inflating your planned total.&lt;br&gt;&lt;br&gt;Wasn't planned at all? Enter &lt;strong&gt;0&lt;/strong&gt; here too — put the real amount in New/Paid Amount below instead of guessing a planned figure.&lt;br&gt;&lt;br&gt;Once a real payment is recorded, this field locks — it stays as your original plan; only the New/Paid Amount can change from then on.">💰</span>Planned Amount</span>
                 <div class="amount-input-wrap">
                   <span class="currency-symbol-overlay" id="billAmountCurrency"></span>
-                  <input id="billAmount" type="number" min="0" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter')this.blur()" />
+                  <input id="billAmount" type="number" min="0" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter')this.blur()" onblur="updateBillPaidAmountVisibility()" />
                 </div>
               </label>
 
@@ -518,7 +551,10 @@
                 </select>
               </div>
             </div>
-            <button class="btn add-bill-btn" id="calAddBillBtn">+ Add Transaction</button>
+            <div class="toolbar-actions">
+              <span class="help-icon" data-help-title="🗓️ Calendar" data-help="&lt;strong&gt;Step 1 — Browse and add&lt;/strong&gt;&lt;br&gt;Each day shows its transactions as small colored chips, right in the calendar. Double-click an empty spot on any day to add a new transaction pre-filled with that date, or use &quot;+ Add Transaction&quot; for any date.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Filter what you see&lt;/strong&gt;&lt;br&gt;Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, or category. There's no month/year filter here — you navigate between months directly on the calendar.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — View and edit&lt;/strong&gt;&lt;br&gt;Click any transaction chip for a quick popup — mark it Paid/Unpaid instantly, tap the pencil to edit, or the trash to delete. On mobile, tap a day to see its transactions in a panel, or long-press an empty spot to add a new one for that date.&lt;br&gt;&lt;br&gt;💡 If you budget by paycheck, the days within your current paycheck period are highlighted with a darker border, so you can spot your pay period at a glance. Don't see it? Turn it on in Settings → &quot;Highlight current paycheck on calendar.&quot;">ℹ️</span>
+              <button class="btn add-bill-btn" id="calAddBillBtn">+ Add Transaction</button>
+            </div>
           </div>
 
           <div class="filters-mobile-bar" id="calFiltersMobileBar">
@@ -527,6 +563,7 @@
                 data-help="Use filters to narrow down your transactions by status, priority or category.">🎛️</span>
               Filters
             </button>
+            <span class="help-icon" data-help-title="🗓️ Calendar" data-help="&lt;strong&gt;Step 1 — Browse and add&lt;/strong&gt;&lt;br&gt;Each day shows its transactions as small colored chips, right in the calendar. Double-click an empty spot on any day to add a new transaction pre-filled with that date, or use &quot;+ Add Transaction&quot; for any date.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Filter what you see&lt;/strong&gt;&lt;br&gt;Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, or category. There's no month/year filter here — you navigate between months directly on the calendar.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — View and edit&lt;/strong&gt;&lt;br&gt;Click any transaction chip for a quick popup — mark it Paid/Unpaid instantly, tap the pencil to edit, or the trash to delete. On mobile, tap a day to see its transactions in a panel, or long-press an empty spot to add a new one for that date.&lt;br&gt;&lt;br&gt;💡 If you budget by paycheck, the days within your current paycheck period are highlighted with a darker border, so you can spot your pay period at a glance. Don't see it? Turn it on in Settings → &quot;Highlight current paycheck on calendar.&quot;">ℹ️</span>
             <button class="btn add-bill-btn" id="calAddBillBtnMobile">+ Add Transaction</button>
           </div>
 
@@ -567,6 +604,7 @@
 
       <section id="section-paycheck" class="section">
         <div class="panel">
+          <span class="help-icon page-corner-info-icon" data-help-title="💵 Paycheck Budget" data-help="&lt;strong&gt;Step 1 — Set up your paycheck periods&lt;/strong&gt;&lt;br&gt;Each paycheck period is a date range you define, and it includes everything dated inside it — income, savings, bills, expenses and debt payments alike.&lt;br&gt;A paycheck period doesn't store an income amount by itself — it's just the date range. To record what you actually got paid, add a separate Income transaction dated within that period, from the Transaction List or Calendar page. You can add as many Income transactions as you need within the same paycheck — useful if you have multiple income sources or an amount that varies each period.&lt;br&gt;If your pay comes at a single regular interval (weekly, biweekly, semimonthly, monthly) — even from multiple sources, as long as they fit that same pattern — set it up once in Settings and generate them automatically. Only if your income is irregular (doesn't fit one single fixed interval) should you create periods manually instead, with &quot;+ New Paycheck.&quot;&lt;br&gt;⚠️ Make sure your periods don't overlap — a transaction dated in an overlap will be counted in both.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Understand what's included&lt;/strong&gt;&lt;br&gt;Only transactions dated within a period's Start and End date show up in it. The &quot;Paycheck Breakdown&quot; card shows a Rollover figure calculated automatically from everything already paid before this period started, plus your bank/cash starting balances.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — Set a budget (optional)&lt;/strong&gt;&lt;br&gt;Each category card has its own amount box, in your chosen currency — type in a target amount for that category, just for this paycheck, and the card tracks how much more you can plan, whether it's fully allocated, or if you've gone over.">ℹ️</span>
           <div id="paycheckBreakdown" class="category-grid"></div>
           <div id="paycheckNotes" class="monthly-notes-wrap"></div>
         </div>
@@ -574,6 +612,7 @@
 
       <section id="section-monthly" class="section">
         <div class="panel">
+          <span class="help-icon page-corner-info-icon" data-help-title="📊 Monthly Insights" data-help="&lt;strong&gt;Step 1 — Browse by month&lt;/strong&gt;&lt;br&gt;Use the month/year dropdown (click the title) to jump between months. Each month includes everything dated inside it — income, savings, bills, expenses and debt payments alike.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Understand your breakdown&lt;/strong&gt;&lt;br&gt;The &quot;Month Breakdown&quot; card shows a Rollover figure calculated automatically from everything already paid before this month started, plus your bank/cash starting balances. Expected vs Paid also appears in that card's table and inside each category card below.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — Set a budget (optional)&lt;/strong&gt;&lt;br&gt;Each category card has its own amount box, in your chosen currency — type in a target amount for that category, just for this month, and the card tracks how much more you can plan, whether it's fully allocated, or if you've gone over.">ℹ️</span>
           <div id="categoryBreakdown" class="category-grid"></div>
           <div id="monthlyNotes" class="monthly-notes-wrap"></div>
         </div>
@@ -581,6 +620,7 @@
 
       <section id="section-yearly" class="section">
         <div class="panel">
+          <span class="help-icon page-corner-info-icon" data-help-title="📈 Yearly Overview" data-help="&lt;strong&gt;Step 1 — Browse by year&lt;/strong&gt;&lt;br&gt;Use the year dropdown (click the title) to switch years. The whole year's transactions get grouped by category — income, savings, bills, expenses and debt payments alike.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 2 — Understand your breakdown&lt;/strong&gt;&lt;br&gt;The &quot;Year Breakdown&quot; card shows total planned vs paid for the year, with a percentage under/over planned, plus a category-by-category table.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Step 3 — Explore monthly trends&lt;/strong&gt;&lt;br&gt;Each category card below shows a bar chart of that category's monthly trend across the year, plus a month-by-month Expected/Paid table — useful for spotting patterns over time.">ℹ️</span>
           <div id="categoryBreakdownYearly" class="category-grid"></div>
           <div id="yearlyNotes" class="monthly-notes-wrap"></div>
         </div>
@@ -734,6 +774,41 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="panel">
+          <p class="qs-text">Don't need this guide anymore? <button class="acc-link-btn" onclick="hideMenuItem('quickstart')">Hide this guide from the menu</button> — you can always bring it back from Settings.</p>
+        </div>
+
+      </section>
+
+      <section id="section-contact" class="section">
+
+        <div class="panel">
+          <h2>💬 Need Help?</h2>
+          <p class="qs-text">If you have any questions or run into any issues, don't hesitate to reach out — I'm happy
+            to help!</p>
+          <div class="qs-info-grid">
+            <div class="qs-info-card qs-mint">
+              <div class="qs-info-icon">📧</div>
+              <div>
+                <div class="qs-info-title">Email</div>
+                <div class="qs-info-desc"><a href="mailto:daniellanechita@gmail.com">daniellanechita@gmail.com</a></div>
+              </div>
+            </div>
+            <div class="qs-info-card qs-yellow">
+              <div class="qs-info-icon">🛍️</div>
+              <div>
+                <div class="qs-info-title">Etsy Shop</div>
+                <div class="qs-info-desc"><a href="https://www.etsy.com/shop/EzPlanningStudio"
+                    target="_blank">EzPlanningStudio</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="qs-text">Don't need this page in your menu? <button class="acc-link-btn" onclick="hideMenuItem('contact')">Hide this page from the menu</button> — you can always bring it back from Settings.</p>
         </div>
 
       </section>
@@ -1006,6 +1081,17 @@
 
           </div>
         </div>
+
+        <h3 class="settings-app-divider">
+          <span class="help-icon" data-help-title="⚙️ App Settings"
+            data-help="Preferences about the app itself — like which pages show in the menu — separate from your budget data above.">⚙️</span>
+          App Settings
+        </h3>
+
+        <div class="panel">
+          <div class="menu-vis-heading">Menu Visibility</div>
+          <div id="menuVisibilitySettings"></div>
+        </div>
       </section>
 
       <section id="section-backup" class="section">
@@ -1101,7 +1187,7 @@
 
       <section id="section-accounts" class="section">
         <div class="panel">
-          <div class="filters-bar">
+          <div class="filters-bar" id="accFiltersBar">
             <div class="filters-left">
               <span class="row-label">
                 <span class="help-icon" data-help-title="Account Filters"
@@ -1118,6 +1204,10 @@
                   <option value="">All Years</option>
                 </select>
               </div>
+            </div>
+            <div class="toolbar-actions">
+              <span class="help-icon" data-help-title="Accounts" data-help="Track your bank, cash, credit, savings and investment accounts. Balances update automatically from paid transactions — click a card to see its full history, and use the filters to narrow down by type or period.">ℹ️</span>
+              <button class="acc-add-btn" onclick="openAccountModal()">+ Add Account</button>
             </div>
           </div>
           <div id="accountsPageGrid"></div>
@@ -1192,11 +1282,18 @@
             </button>
           </div>
           <div class="form-grid">
-            <label class="full-width">
+            <label>
               <span style="display:inline-flex; align-items:center; gap:4px;"><span class="help-icon" id="accountNameHelpIcon"
                 data-help-title="🏷️ Account name"
                 data-help="Enter a clear name so you can easily identify it in dropdowns. For example: Main Bank Account, Cash Wallet, Emergency Fund, Visa Credit Card.">🏷️</span>Account name</span>
               <input type="text" id="accountName" placeholder="e.g. Main Bank Account" />
+            </label>
+            <label id="accountCreditLimitRow" style="display:none;">
+              <span>🛑 Credit Limit</span>
+              <div class="amount-input-wrap">
+                <span class="currency-symbol-overlay" id="accountCreditLimitCurrency"></span>
+                <input type="number" id="accountCreditLimit" placeholder="e.g. 5000.00" min="0" step="0.01" />
+              </div>
             </label>
             <label id="accountTypeRow">
               <span style="display:inline-flex; align-items:center; gap:4px;"><span class="help-icon"
@@ -1415,6 +1512,166 @@
     </div>
 </div>
 
+<!-- Calendar Info Modal -->
+<div class="modal" id="calendarInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">🗓️ Calendar Setup</h2>
+            <button class="modal-close-btn" onclick="closeCalendarInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>See your transactions laid out day by day — here's how it works.</p>
+            <p><strong>Step 1 — Browse and add</strong><br>
+            Each day shows its transactions as small colored chips, right in the calendar. Double-click an empty spot on any day to add a new transaction pre-filled with that date, or use "+ Add Transaction" for any date.</p>
+            <p><strong>Step 2 — Filter what you see</strong><br>
+            Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, or category. There's no month/year filter here — you navigate between months directly on the calendar.</p>
+            <p><strong>Step 3 — View and edit</strong><br>
+            Click any transaction chip for a quick popup — mark it Paid/Unpaid instantly, tap the pencil to edit, or the trash to delete. On mobile, tap a day to see its transactions in a panel, or long-press an empty spot to add a new one for that date.</p>
+            <p>💡 If you budget by paycheck, the days within your current paycheck period are highlighted with a darker border, so you can spot your pay period at a glance. Don't see it? Turn it on in Settings → "Highlight current paycheck on calendar."</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closeCalendarInfoModal()">Close</button>
+            <button class="btn primary" onclick="closeCalendarInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction List Info Modal -->
+<div class="modal" id="transactionListInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">📋 Transaction List Setup</h2>
+            <button class="modal-close-btn" onclick="closeTransactionListInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>See and manage every transaction you've added — here's how it works.</p>
+            <p><strong>Step 1 — Add and browse</strong><br>
+            Every transaction — income, savings, bills, expenses, debt payments, transfers — shows up here, sorted by date. Use "+ Add Transaction" to create a new one.</p>
+            <p><strong>Step 2 — Filter what you see</strong><br>
+            Use the Filters bar to narrow down by status (Planned/Done/Overdue), priority, category, or a specific month/year. Click "All" to reset every filter at once.</p>
+            <p><strong>Step 3 — Manage each transaction</strong><br>
+            Click the checkmark button to mark a transaction Paid or Unpaid, the pencil to Edit it, or the trash icon to delete it. For a recurring transaction, deleting gives you the choice between removing just that one occurrence or the entire series.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closeTransactionListInfoModal()">Close</button>
+            <button class="btn primary" onclick="closeTransactionListInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<!-- Accounts Info Modal -->
+<div class="modal" id="accountsInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">🏦 Accounts Setup</h2>
+            <button class="modal-close-btn" onclick="closeAccountsInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>Track your bank, cash, credit, savings and investment accounts — here's how to set it up.</p>
+            <p><strong>Step 1 — Add your accounts</strong><br>
+            Add each account one by one: a name, a type (Cash, Bank, Credit, Savings, or Investment), and a starting balance — whatever you have in it right now. For credit cards, also set a Credit Limit so the app can track your utilization.</p>
+            <p><strong>Step 2 — Track your balance</strong><br>
+            Each account's balance updates automatically — every transaction with it as the From or To account, once marked Paid, adjusts it. Planned (not yet paid) transactions don't touch the current balance yet.</p>
+            <p><strong>Step 3 — Review history & filters</strong><br>
+            Click a card to expand it and see its full transaction history, with a running balance shown per transaction — solid for paid, projected for planned ones.<br>
+            Use the Filters bar to narrow down by account type, or by month/year to see that period's In/Out instead of the all-time total.<br>
+            💳 Credit cards with a limit set also show a utilization bar (% used, amount available).</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closeAccountsInfoModal()">Close</button>
+            <button class="btn primary" onclick="closeAccountsInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<!-- Paycheck Budget Info Modal -->
+<div class="modal" id="paycheckInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">💵 Paycheck Budget Setup</h2>
+            <button class="modal-close-btn" onclick="closePaycheckInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>Budget by paycheck instead of by calendar month — here's how it works.</p>
+            <p><strong>Step 1 — Set up your paycheck periods</strong><br>
+            Each paycheck period is a date range you define, and it includes everything dated inside it — income, savings, bills, expenses and debt payments alike.<br>
+            A paycheck period doesn't store an income amount by itself — it's just the date range. To record what you actually got paid, add a separate Income transaction dated within that period, from the Transaction List or Calendar page. You can add as many Income transactions as you need within the same paycheck — useful if you have multiple income sources or an amount that varies each period.<br>
+            If your pay comes at a single regular interval (weekly, biweekly, semimonthly, monthly) — even from multiple sources, as long as they fit that same pattern — set it up once in Settings and generate them automatically. Only if your income is irregular (doesn't fit one single fixed interval) should you create periods manually instead, with "+ New Paycheck" — that way you control exactly what each one covers.<br>
+            ⚠️ Make sure your periods don't overlap — a transaction dated in an overlap will be counted in both.</p>
+            <p><strong>Step 2 — Understand what's included</strong><br>
+            Only transactions dated within a period's Start and End date show up in it — nothing outside that range.<br>
+            The "Paycheck Breakdown" card (top) shows a Rollover figure, calculated automatically from everything already paid before this period started, plus your bank/cash starting balances. Expected vs Paid also appears in that card's table and inside each category card below.</p>
+            <p><strong>Step 3 — Set a budget (optional)</strong><br>
+            Each category card (Income, Savings, Bills, Expenses, Debt Payments) has its own amount box, in your chosen currency — type in a target amount for that category, just for this paycheck. Once you do, the card tracks how much more you can plan, whether it's fully allocated, or if you've gone over.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closePaycheckInfoModal()">Close</button>
+            <button class="btn primary" onclick="closePaycheckInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Insights Info Modal -->
+<div class="modal" id="monthlyInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">📊 Monthly Insights Setup</h2>
+            <button class="modal-close-btn" onclick="closeMonthlyInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>See your budget broken down by calendar month — here's how it works.</p>
+            <p><strong>Step 1 — Browse by month</strong><br>
+            Use the month/year dropdown (click the title) to jump between months. Each month includes everything dated inside it — income, savings, bills, expenses and debt payments alike.</p>
+            <p><strong>Step 2 — Understand your breakdown</strong><br>
+            The "Month Breakdown" card (top) shows a Rollover figure, calculated automatically from everything already paid before this month started, plus your bank/cash starting balances. Expected vs Paid also appears in that card's table and inside each category card below.</p>
+            <p><strong>Step 3 — Set a budget (optional)</strong><br>
+            Each category card (Income, Savings, Bills, Expenses, Debt Payments) has its own amount box, in your chosen currency — type in a target amount for that category, just for this month. Once you do, the card tracks how much more you can plan, whether it's fully allocated, or if you've gone over.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closeMonthlyInfoModal()">Close</button>
+            <button class="btn primary" onclick="closeMonthlyInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<!-- Yearly Overview Info Modal -->
+<div class="modal" id="yearlyInfoModal">
+    <div class="modal-box" style="max-width:520px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin:0;">📈 Yearly Overview Setup</h2>
+            <button class="modal-close-btn" onclick="closeYearlyInfoModal()">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            </button>
+        </div>
+        <div class="modal-info-body">
+            <p>See your whole year at a glance — here's how it works.</p>
+            <p><strong>Step 1 — Browse by year</strong><br>
+            Use the year dropdown (click the title) to switch years. The whole year's transactions get grouped by category — income, savings, bills, expenses and debt payments alike.</p>
+            <p><strong>Step 2 — Understand your breakdown</strong><br>
+            The "Year Breakdown" card (top) shows total planned vs paid for the year, with a percentage under or over planned, plus a category-by-category table.</p>
+            <p><strong>Step 3 — Explore monthly trends</strong><br>
+            Each category card below shows a bar chart of that category's monthly trend across the year, plus a month-by-month Expected/Paid table — useful for spotting patterns over time.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn soft" onclick="closeYearlyInfoModal()">Close</button>
+            <button class="btn primary" onclick="closeYearlyInfoModal(true)">Don't show again</button>
+        </div>
+    </div>
+</div>
+
+<div class="help-icon-tooltip" id="helpIconTooltip">Click for details</div>
+
+  </div>
 </body>
 
 </html>

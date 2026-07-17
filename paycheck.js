@@ -433,7 +433,10 @@ function getCurrentPaycheckIndex() {
             const end = parseLocalDate(pc.endDate);
             return today >= start && today <= end;
         });
-        return todayIdx !== -1 ? todayIdx : pcs.length - 1;
+        if (todayIdx !== -1) return todayIdx;
+        const today2 = new Date(); today2.setHours(0, 0, 0, 0);
+        const nextIdx = pcs.findIndex(pc => parseLocalDate(pc.startDate) > today2);
+        return nextIdx !== -1 ? nextIdx : pcs.length - 1;
     }
     const idx = parseInt(saved);
     return Math.min(Math.max(idx, 0), pcs.length - 1);
@@ -479,7 +482,10 @@ function renderAllPaycheck() {
             return today >= start && today <= end;
         });
         if (todayIdx !== -1) setCurrentPaycheckIndex(todayIdx);
-        else setCurrentPaycheckIndex(pcs.length - 1);
+        else {
+            const nextIdx = pcs.findIndex(pc => parseLocalDate(pc.startDate) > today);
+            setCurrentPaycheckIndex(nextIdx !== -1 ? nextIdx : pcs.length - 1);
+        }
     }
 
     updatePaycheckPageTitle();

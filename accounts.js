@@ -240,24 +240,49 @@ function renderAccountCard(acc, monthFilter, yearFilter) {
     const periodLabel = balance.isFiltered ? "Period In" : "Total In";
     const periodOutLabel = balance.isFiltered ? "Period Out" : "Total Out";
 
+    let creditUtilHtml = "";
+    if (acc.type === "credit" && acc.creditLimit) {
+        const limit = parseFloat(acc.creditLimit) || 0;
+        const used  = Math.max(-balance.currentBalance, 0);
+        const pct   = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+        const barCls = pct > 75 ? "acc-cc-seg--high" : pct > 40 ? "acc-cc-seg--medium" : "acc-cc-seg--low";
+        const available = Math.max(limit - used, 0);
+        creditUtilHtml = `
+        <div class="acc-cc-utilization">
+            <div class="ipb-track">
+                <div class="ipb-segments">
+                    <div class="ipb-segment ${barCls}" style="width:${pct.toFixed(1)}%;"></div>
+                </div>
+            </div>
+            <div class="acc-cc-util-labels">
+                <span class="acc-cc-util-pct">${pct.toFixed(0)}% used</span>
+                <span class="acc-cc-util-info">${formatMoney(used)} of ${formatMoney(limit)} &nbsp;·&nbsp; Available: <strong>${formatMoney(available)}</strong></span>
+            </div>
+        </div>`;
+    }
+
+    const editSvg = `<svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5 L16.5 6.5 L7 16 L3 17 L4 13 Z"/><line x1="11" y1="5.5" x2="14.5" y2="9"/></svg>`;
+    const chevronSvg = `<svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>`;
+
     return `
     <div class="acc-page-card ${borderCls}" id="acc-card-${acc.id}">
       <div class="acc-page-card-header" onclick="toggleAccountExpand('${acc.id}')">
         <div class="acc-page-card-title">
           <span class="acc-page-emoji">${typeInfo.emoji}</span>
-          <div class="acc-page-name-wrap">
-            <span class="acc-page-name">${escapeHtml(acc.name)}</span>
-            <span class="acc-page-type">${typeInfo.label}</span>
-          </div>
+          <span class="acc-page-name">${escapeHtml(acc.name)}</span>
         </div>
+        <span class="acc-page-type">${typeInfo.label}</span>
         <div class="acc-page-balance-wrap">
           <span class="acc-page-balance ${isNegative ? "acc-balance--negative" : "acc-balance--positive"}">${formatMoney(balance.currentBalance)}</span>
           <span class="acc-page-balance-label">Current Balance</span>
         </div>
-        <div class="acc-page-chevron ${isExpanded ? "acc-page-chevron--open" : ""}">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="5 8 10 13 15 8"/>
-          </svg>
+        <div class="dt-debt-ctrls">
+          <button class="mini-btn edit-btn app-tooltip-trigger acc-page-edit" onclick="event.stopPropagation();openAccountModal('${acc.id}')">
+            ${editSvg}<span class="app-tooltip">Edit</span>
+          </button>
+          <div class="acc-page-chevron ${isExpanded ? "acc-page-chevron--open" : ""}">
+            ${chevronSvg}
+          </div>
         </div>
       </div>
 
@@ -282,6 +307,7 @@ function renderAccountCard(acc, monthFilter, yearFilter) {
         </div>
       </div>
 
+      ${creditUtilHtml}
       <div class="acc-page-transactions" id="acc-tx-${acc.id}" ${isExpanded ? "" : 'style="display:none"'}>
         ${txHtml}
       </div>
@@ -335,13 +361,20 @@ function renderAccountsPage() {
 
     updateAccAllPill();
 
+    const filtersBar = document.getElementById("accFiltersBar");
+    if (filtersBar) filtersBar.style.display = (data.accounts || []).length === 0 ? "none" : "";
+
     if (accounts.length === 0) {
-        el.innerHTML = `
-        <div class="acc-page-empty">
-          <div class="acc-page-empty-icon">🏦</div>
-          <p>No accounts yet.</p>
-          <p>Add your bank accounts, credit cards, and cash in <button class="acc-link-btn" onclick="showSection('settings')">Settings → Bank Accounts</button>.</p>
-        </div>`;
+        if ((data.accounts || []).length === 0) {
+            el.innerHTML = `
+            <div class="acc-page-empty">
+              <div class="acc-page-empty-icon">🏦</div>
+              <p>No accounts yet.</p>
+              <button class="acc-add-btn" onclick="openAccountModal()">+ Add Account</button>
+            </div>`;
+        } else {
+            el.innerHTML = `<div class="acc-empty-filter">No accounts match this filter.</div>`;
+        }
         return;
     }
 
@@ -370,6 +403,20 @@ function toggleAccountExpand(accountId) {
     }
 }
 
+function openAccountsInfoModal() {
+    if (localStorage.getItem("proPaycheckAccountsSeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("accountsInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closeAccountsInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckAccountsSeen", "true");
+    document.getElementById("accountsInfoModal").classList.remove("active");
+}
+
+window.closeAccountsInfoModal = closeAccountsInfoModal;
 window.renderAccountsPage   = renderAccountsPage;
 window.toggleAccountExpand  = toggleAccountExpand;
 window.resetAccFilters      = resetAccFilters;

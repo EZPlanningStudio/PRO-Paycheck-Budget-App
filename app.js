@@ -363,6 +363,7 @@ function init() {
     const isOnline = window.location.protocol === "https:";
     const menuActivation = document.getElementById("menuActivation");
     if (menuActivation) menuActivation.style.display = isActivated() ? "none" : "";
+    applyHiddenMenuItems();
     if (isMobile || isOnline) {
         const autoBackup = document.getElementById("autoBackupSection");
         if (autoBackup) autoBackup.style.display = "none";
@@ -933,6 +934,25 @@ function bindEvents() {
         }
     });
 
+    els.billPaidAmount.addEventListener("blur", () => {
+        const value = Number(els.billPaidAmount.value);
+
+        if (!Number.isNaN(value) && els.billPaidAmount.value !== "") {
+            els.billPaidAmount.value = value.toFixed(2);
+        }
+    });
+
+    ["accountCreditLimit"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener("blur", () => {
+            const value = Number(el.value);
+            if (!Number.isNaN(value) && el.value !== "") {
+                el.value = value.toFixed(2);
+            }
+        });
+    });
+
     document.getElementById("calNavPeriod")?.addEventListener("change", (e) => {
         const [y, m] = e.target.value.split("-").map(Number);
         currentCalendarDate.setFullYear(y);
@@ -1012,6 +1032,9 @@ function bindEvents() {
     document.getElementById("undoBtn")?.addEventListener("click", undoChange);
     document.getElementById("redoBtn")?.addEventListener("click", redoChange);
 
+    document.getElementById("quickExportBtn")?.addEventListener("click", exportJson);
+    document.getElementById("quickImportBtn")?.addEventListener("click", smartImportBackup);
+
     document.getElementById("exportJson").addEventListener("click", exportJson);
     document.getElementById("backupNowBtn").addEventListener("click", async () => {
         await exportJson();
@@ -1055,6 +1078,16 @@ function bindEvents() {
         document.getElementById("helpModalText").innerHTML = helpIcon.dataset.help;
         document.getElementById("helpModal").classList.add("active");
     });
+
+    document.addEventListener("mouseover", (e) => {
+        const helpIcon = e.target.closest(".help-icon[data-help]");
+        if (helpIcon) showHelpIconTooltip(helpIcon);
+    });
+    document.addEventListener("mouseout", (e) => {
+        const helpIcon = e.target.closest(".help-icon[data-help]");
+        if (helpIcon) hideHelpIconTooltip();
+    });
+    window.addEventListener("scroll", hideHelpIconTooltip, true);
 
     // Delete recurring modal
     const closeDeleteModal = () => {
@@ -1466,6 +1499,7 @@ const sectionConfig = {
     settings: { main: "Settings", getLabel: null },
     backup: { main: "Backup", getLabel: null },
     quickstart: { main: "quick start", secondary: "guide", getLabel: null },
+    contact: { main: "contact", secondary: "us", getLabel: null },
     accounts: { main: "accounts", secondary: "bank", getLabel: null },
 };
 
@@ -1545,7 +1579,7 @@ function showSection(section) {
     renderPageHeader(section);
 
     const config = sectionConfig[section];
-    document.getElementById("pageTitle").classList.remove("page-calendar", "page-list", "page-monthly", "page-yearly", "page-settings", "page-backup", "page-quickstart", "page-accounts");
+    document.getElementById("pageTitle").classList.remove("page-calendar", "page-list", "page-monthly", "page-yearly", "page-settings", "page-backup", "page-quickstart", "page-contact", "page-accounts");
     document.getElementById("pageTitle").classList.add(`page-${section}`);
 
     if (config && typeof config.main !== "undefined") {
@@ -1557,13 +1591,19 @@ function showSection(section) {
 
     updateSectionLabel(section);
 
+    if (section === "list") {
+        if (typeof openTransactionListInfoModal === "function") openTransactionListInfoModal();
+    }
+
     if (section === "calendar") {
         selectedCalDay = null;
         renderCalendar();
+        if (typeof openCalendarInfoModal === "function") openCalendarInfoModal();
     }
 
     if (section === "paycheck") {
         renderAllPaycheck();
+        if (typeof openPaycheckInfoModal === "function") openPaycheckInfoModal();
     } else {
         document.querySelectorAll(".paycheck-interval").forEach(el => el.remove());
         document.getElementById("pageTitle")?.classList.remove("page-paycheck");
@@ -1572,14 +1612,17 @@ function showSection(section) {
     if (section === "monthly") {
         renderMonthlyInsights();
         renderMonthlyNotes();
+        if (typeof openMonthlyInfoModal === "function") openMonthlyInfoModal();
     }
 
     if (section === "yearly") {
         renderYearlySummary();
+        if (typeof openYearlyInfoModal === "function") openYearlyInfoModal();
     }
 
     if (section === "accounts") {
         if (typeof renderAccountsPage === "function") renderAccountsPage();
+        if (typeof openAccountsInfoModal === "function") openAccountsInfoModal();
     }
 }
 
@@ -1639,8 +1682,80 @@ function closeInvestmentsInfoModal(dontShow = false) {
     document.getElementById("investmentsInfoModal").classList.remove("active");
 }
 
+function openCalendarInfoModal() {
+    if (localStorage.getItem("proPaycheckCalendarSeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("calendarInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closeCalendarInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckCalendarSeen", "true");
+    document.getElementById("calendarInfoModal").classList.remove("active");
+}
+
+window.closeCalendarInfoModal = closeCalendarInfoModal;
+
+function openTransactionListInfoModal() {
+    if (localStorage.getItem("proPaycheckTransactionListSeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("transactionListInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closeTransactionListInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckTransactionListSeen", "true");
+    document.getElementById("transactionListInfoModal").classList.remove("active");
+}
+
+window.closeTransactionListInfoModal = closeTransactionListInfoModal;
+
+function openPaycheckInfoModal() {
+    if (localStorage.getItem("proPaycheckPaycheckSeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("paycheckInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closePaycheckInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckPaycheckSeen", "true");
+    document.getElementById("paycheckInfoModal").classList.remove("active");
+}
+
+function openMonthlyInfoModal() {
+    if (localStorage.getItem("proPaycheckMonthlySeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("monthlyInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closeMonthlyInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckMonthlySeen", "true");
+    document.getElementById("monthlyInfoModal").classList.remove("active");
+}
+
+function openYearlyInfoModal() {
+    if (localStorage.getItem("proPaycheckYearlySeen") === "true") return;
+    setTimeout(() => {
+        const el = document.getElementById("yearlyInfoModal");
+        if (el) el.classList.add("active");
+    }, 50);
+}
+
+function closeYearlyInfoModal(dontShow = false) {
+    if (dontShow) localStorage.setItem("proPaycheckYearlySeen", "true");
+    document.getElementById("yearlyInfoModal").classList.remove("active");
+}
+
 window.closeTransfersInfoModal = closeTransfersInfoModal;
 window.closeInvestmentsInfoModal = closeInvestmentsInfoModal;
+window.closePaycheckInfoModal = closePaycheckInfoModal;
+window.closeMonthlyInfoModal = closeMonthlyInfoModal;
+window.closeYearlyInfoModal = closeYearlyInfoModal;
 
 function renderCategoryOptions() {
     els.billCategory.innerHTML = `
@@ -1724,6 +1839,28 @@ function renderSettings() {
     loadPaycheckSettings();
     renderAccountsCols();
     renderDebts();
+    renderMenuVisibilitySettings();
+}
+
+const HIDEABLE_MENU_ITEMS = [
+    { section: "quickstart", label: "Quick Start Guide" },
+    { section: "contact", label: "Contact" }
+];
+
+function renderMenuVisibilitySettings() {
+    const el = document.getElementById("menuVisibilitySettings");
+    if (!el) return;
+    const hidden = getHiddenMenuItems();
+    el.innerHTML = HIDEABLE_MENU_ITEMS.map(item => {
+        const isHidden = hidden.includes(item.section);
+        return `<div class="menu-vis-row">
+            <span class="menu-vis-label">${escapeHtml(item.label)}</span>
+            <span class="menu-vis-right">
+                <span class="menu-vis-status">${isHidden ? "Hidden" : "Visible"}</span>
+                <button class="acc-link-btn" onclick="${isHidden ? "showMenuItem" : "hideMenuItem"}('${item.section}')">${isHidden ? "Show" : "Hide"}</button>
+            </span>
+        </div>`;
+    }).join("");
 }
 
 function generateRecurringBills(bill) {
@@ -1762,6 +1899,40 @@ function generateRecurringBills(bill) {
 function isActivated() {
     return localStorage.getItem("proPaycheckActivated") === "true";
 }
+
+function getHiddenMenuItems() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem("proPaycheckHiddenMenuItems") || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function applyHiddenMenuItems() {
+    const hidden = getHiddenMenuItems();
+    document.querySelectorAll("nav button[data-section]").forEach(btn => {
+        btn.style.display = hidden.includes(btn.dataset.section) ? "none" : "";
+    });
+}
+
+function hideMenuItem(section) {
+    const hidden = getHiddenMenuItems();
+    if (!hidden.includes(section)) hidden.push(section);
+    localStorage.setItem("proPaycheckHiddenMenuItems", JSON.stringify(hidden));
+    applyHiddenMenuItems();
+    if (currentActiveSection === section) showSection("list");
+    if (typeof renderSettings === "function") renderSettings();
+}
+
+function showMenuItem(section) {
+    const hidden = getHiddenMenuItems().filter(s => s !== section);
+    localStorage.setItem("proPaycheckHiddenMenuItems", JSON.stringify(hidden));
+    applyHiddenMenuItems();
+    if (typeof renderSettings === "function") renderSettings();
+}
+window.hideMenuItem = hideMenuItem;
+window.showMenuItem = showMenuItem;
 
 function showActivationModal() {
     document.getElementById("activationCodeInput").value = "";
@@ -1832,9 +2003,9 @@ function handleSaveBill(event) {
         category: existing ? existing.category : els.billCategory.value,
         type: existing ? existing.type : els.billType.value,      
         amount: Number(els.billAmount.value),
-        actualAmount: existing ? (els.billPaidAmount.value !== "" ? Number(els.billPaidAmount.value) : null) : null,
+        actualAmount: els.billPaidAmount.value !== "" ? Number(els.billPaidAmount.value) : null,
         dueDate: existing ? existing.dueDate : els.billDate.value,
-        actualDate: existing ? (els.billPaidDate.value !== "" ? els.billPaidDate.value : null) : null,
+        actualDate: els.billPaidDate.value !== "" ? els.billPaidDate.value : null,
         priority: Number(els.billPriority.value),
         frequency: existing ? existing.frequency : els.billFrequency.value,
         interval: existing ? existing.interval : (Number(els.billInterval.value) || 1),
@@ -1852,7 +2023,7 @@ function handleSaveBill(event) {
         { elId: "billCategory", valid: () => els.billCategory.value !== "" },
         { elId: "billName", valid: () => els.billCategory.value === "Transfers" || els.billName.value !== "" },
         { elId: "billType", valid: () => els.billCategory.value === "Transfers" || els.billType.value !== "" },
-        { elId: "billAmount", valid: () => els.billAmount.value !== "" && Number(els.billAmount.value) > 0 },
+        { elId: "billAmount", valid: () => els.billAmount.value !== "" && Number(els.billAmount.value) >= 0 },
         { elId: "billDate", valid: () => els.billDate.value !== "" || (!!els.editingId.value && !!data.bills.find(b => b.id === els.editingId.value)?.dueDate) },
         { elId: "billPriority", valid: () => els.billPriority.required === false || els.billPriority.value !== "" },
         { elId: "billFrequency", valid: () => els.billFrequency.value !== "" },
@@ -2093,6 +2264,7 @@ function resetHelpTexts() {
         billCategory: "💰 <strong>Income</strong> — salary, freelance, any earnings. Use <em>Received</em> for incoming payments and <em>Returned</em> for money you paid back.<br><br>🐷 <strong>Savings</strong> — money you set aside for the future. Use <em>Deposit</em> when you move money into savings, and <em>Withdrawal</em> when you take it back out. Reduces your left-to-spend balance.<br><br>🏠 <strong>Bills</strong> — regular fixed payments: rent, subscriptions, insurance, utilities.<br><br>🛒 <strong>Expenses</strong> — variable day-to-day spending: groceries, dining out, fuel, shopping.<br><br>⚠️ Any payment made with a <strong>credit card</strong> is <strong>not deducted</strong> from your left-to-spend — it appears in your category totals but doesn't affect your available cash. You can track this in the <strong>Monthly Insights</strong> and <strong>Paycheck Budget</strong> pages.<br><br>💳 <strong>Debt Payments</strong> — payments toward a debt. Set up your debts in Settings first. Keeps debt tracking accurate and separate from regular expenses.<br><br>📈 <strong>Investments</strong><br>Use this category to record money you're moving into or out of an investment account — for example, buying stocks, funding a portfolio, or withdrawing from an investment platform.<br><br><strong>What it does:</strong><br>• Deposits reduce your left-to-spend balance, just like an expense would.<br>• Withdrawals add back to your left-to-spend balance.<br><br><strong>What it doesn't do:</strong><br>This category does not track your investment performance, portfolio value, or returns. It only records the cash movement in and out of your investment account.<br><br><strong>Coming in the Ultimate version:</strong><br>The Ultimate Paycheck Budget App will include a dedicated Investments page with full portfolio tracking, category breakdowns, and a separate dashboard.<br><br>🔄 <strong>Transfers</strong><br>A Transfer moves money between your everyday accounts — for example, from your bank account to your wallet, or from one bank account to another.<br><br><strong>What Transfers are NOT for:</strong><br>• <strong>Savings deposits or withdrawals</strong> — use the Savings category instead. This keeps your savings balance and your budget in sync.<br>• <strong>Investment deposits or withdrawals</strong> — use the Investments category instead, for the same reason.<br>• <strong>Paying off a credit card debt</strong> — use Debt Payments for that. Transfers to a credit card are only for moving money you already have, not for repaying a loan or credit balance.<br><br><strong>Why don't I see my Savings or Investment accounts here?</strong><br>Savings and Investment accounts are intentionally excluded from Transfers. Moving money into them through a Transfer would update the account balance but not your budget — your left-to-spend wouldn't change, and your categories wouldn't reflect the movement. Always use the correct category to keep everything in sync.",
         billName: "Select the transaction name from the dropdown. Transaction names are managed in the Settings page.",
         billType: "Select Payment for regular transactions and expenses. Select Refund for reimbursements or returned payments.",
+        billAmount: "Enter the amount you're planning for this transaction. Always enter a positive number — the transaction type (Received, Returned, Deposit, Withdrawal, Payment, etc.) determines the direction of the money.<br><br>Making a partial or extra payment toward something you already planned? Enter <strong>0</strong> here instead of a new planned amount — a \"New/Paid Amount\" field will appear for the real amount, without inflating your planned total.<br><br>Wasn't planned at all? Enter <strong>0</strong> here too — put the real amount in New/Paid Amount below instead of guessing a planned figure.<br><br>Once a real payment is recorded, this field locks — it stays as your original plan; only the New/Paid Amount can change from then on.",
         billFrequency: "Select how often this transaction repeats. Choose One-time for a single payment, or Daily, Weekly, Monthly, Yearly for recurring transactions. If you select a recurring frequency, Interval and End Date fields will appear.",
         billDate: "Enter the transaction's due date. For recurring transactions, this is the first due date — the recurring series starts from this date. This date is used to organize and calculate expected amounts across all reports.",
         billFrequency: "Select how often this transaction repeats. Choose One-time for a single payment, or Daily, Weekly, Monthly, Yearly for recurring transactions. If you select a recurring frequency, Interval and End Date fields will appear.",
@@ -2142,11 +2314,6 @@ function editBill(id) {
     els.billPaidAmount.value = bill.actualAmount != null ? Number(bill.actualAmount).toFixed(2) : "";
     els.billPaidDate.value = bill.actualDate || "";
     els.billPaidDate.classList.toggle("has-value", !!bill.actualDate);
-    els.billPaidAmount.addEventListener("blur", () => {
-        if (els.billPaidAmount.value !== "") {
-            els.billPaidAmount.value = Number(els.billPaidAmount.value).toFixed(2);
-        }
-    });
     els.billPaidDate.addEventListener("change", () => {
         document.getElementById("updateFromHere").style.display = (els.billPaidDate.value || !isRecurring) ? "none" : "";
     });
@@ -2279,6 +2446,11 @@ function calcAutoRollover(beforeDate) {
     return startBalances + income - savings - cashSpent - investments;
 }
 
+function updateBillPaidAmountVisibility() {
+    const isZero = els.billAmount.value !== "" && Number(els.billAmount.value) === 0;
+    els.billPaidAmountWrap.style.display = isZero ? "" : "none";
+}
+
 function updatePaidLabels() {
     const category = els.billCategory.value;
     const type = els.billType.value;
@@ -2289,33 +2461,33 @@ function updatePaidLabels() {
 
     let amountText = "New/Paid Amount";
     let dateText = "New/Paid Date";
-    let amountHelp = "Enter a New/Paid Amount if the actual paid amount differs from the planned Amount.";
+    let amountHelp = "Enter a New/Paid Amount if the actual paid amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
     let dateHelp = "Enter a New/Paid Date if the actual payment date differs from the original Due Date.";
 
     if (isIncomeCategory(category)) {
         if (type === "payment") {
             amountText = "New/Received Amount";
-            amountHelp = "Enter a New/Received Amount if the actual received amount differs from the planned Amount.";
+            amountHelp = "Enter a New/Received Amount if the actual received amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
         } else {
             amountText = "New/Returned Amount";
-            amountHelp = "Enter a New/Returned Amount if the actual returned amount differs from the planned Amount.";
+            amountHelp = "Enter a New/Returned Amount if the actual returned amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
         }
         dateText = "New/Actual Date";
         dateHelp = "Enter the actual date if it differs from the original Due Date.";
     } else if (isSavingsCategory(category)) {
         if (type === "payment") {
             amountText = "New/Saved Amount";
-            amountHelp = "Enter a New/Saved Amount if the actual saved amount differs from the planned Amount.";
+            amountHelp = "Enter a New/Saved Amount if the actual saved amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
         } else {
             amountText = "New/Withdrawn Amount";
-            amountHelp = "Enter a New/Withdrawn Amount if the actual withdrawn amount differs from the planned Amount.";
+            amountHelp = "Enter a New/Withdrawn Amount if the actual withdrawn amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
         }
         dateText = "New/Actual Date";
         dateHelp = "Enter the actual date if it differs from the original Due Date.";
     } else if (type === "refund") {
         amountText = "New/Received Amount";
         dateText = "New/Actual Date";
-        amountHelp = "Enter a New/Received Amount if the actual received amount differs from the planned Amount.";
+        amountHelp = "Enter a New/Received Amount if the actual received amount differs from the planned Amount. If Planned Amount is 0, enter the real amount of an unplanned transaction here.";
         dateHelp = "Enter the actual date if it differs from the original Due Date.";
     }
 
@@ -2752,7 +2924,7 @@ function renderBills() {
                 <span  >${formatMoney(getBillDisplayAmount(bill))}</span>
     </span>
 
-    ${bill.actualAmount != null && Number(bill.actualAmount) !== Number(bill.amount)
+    ${bill.actualAmount != null && Number(bill.amount) > 0 && Number(bill.actualAmount) !== Number(bill.amount)
                 ? `<span class="bill-original-amount">${formatMoney(bill.amount)}</span>`
                 : ""
             }
@@ -3274,7 +3446,7 @@ function renderCalDayPanel(dateString) {
                         ${(bill.fromAccount || bill.toAccount) ? `<div class="bill-accounts-row">${bill.fromAccount ? `<span class="bill-account-tag">⬆️ ${escapeHtml((data.accounts||[]).find(a=>a.id===bill.fromAccount)?.name||'')}</span>` : ''}${bill.fromAccount && bill.toAccount ? ` → ` : ''}${bill.toAccount ? `<span class="bill-account-tag">⬇️ ${escapeHtml((data.accounts||[]).find(a=>a.id===bill.toAccount)?.name||'')}</span>` : ''}</div>` : ''}
                         ${bill.notes ? `<div class="cal-panel-notes">${escapeHtml(bill.notes)}</div>` : ""}
                     </div>
-                    <div class="cal-panel-amount">${bill.type === "refund" ? `<span class="bill-refund-icon ${(isIncomeCategory(bill.category) || isSavingsCategory(bill.category)) ? "refund-out" : "refund-in"}">&#x27A1;</span>` : ""}<span class="cal-amount-main"><span class="bill-frequency-icon">${bill.frequency === "one-time" ? "◷" : "↻"}</span><span>${amount}</span></span>${bill.actualAmount != null && Number(bill.actualAmount) !== Number(bill.amount) ? `<span class="bill-original-amount">${formatMoney(bill.amount)}</span>` : ""}</div>
+                    <div class="cal-panel-amount">${bill.type === "refund" ? `<span class="bill-refund-icon ${(isIncomeCategory(bill.category) || isSavingsCategory(bill.category)) ? "refund-out" : "refund-in"}">&#x27A1;</span>` : ""}<span class="cal-amount-main"><span class="bill-frequency-icon">${bill.frequency === "one-time" ? "◷" : "↻"}</span><span>${amount}</span></span>${bill.actualAmount != null && Number(bill.amount) > 0 && Number(bill.actualAmount) !== Number(bill.amount) ? `<span class="bill-original-amount">${formatMoney(bill.amount)}</span>` : ""}</div>
                 </div>`;
         }).join("");
 
@@ -4005,9 +4177,7 @@ function renderCategoryCard(cat, color, monthBills, month, year, overdraftAmount
                 name: bill.name,
                 totalExp: 0,
                 totalPaid: 0,
-                count: 0,
-                allPaid: true,
-                anyUnpaid: false
+                count: 0
             };
         }
         const expAmt = parseFloat(bill.amount) || 0;
@@ -4015,7 +4185,6 @@ function renderCategoryCard(cat, color, monthBills, month, year, overdraftAmount
         const displayAmt = parseFloat(getBillDisplayAmount(bill)) || 0;
         paymentGroups[key].totalExp += expAmt;
         if (bill.paid) paymentGroups[key].totalPaid += Math.max(0, displayAmt - refundedAmt);
-        if (!bill.paid) { paymentGroups[key].allPaid = false; paymentGroups[key].anyUnpaid = true; }
         paymentGroups[key].count++;
     });
 
@@ -4024,7 +4193,7 @@ function renderCategoryCard(cat, color, monthBills, month, year, overdraftAmount
             <tr>
                 <td><div class="mi-td-name" style="color:${color.text};">${g.name}${g.count > 1 ? ` <span style="font-size:11px;color:var(--muted);">×${g.count}</span>` : ""}</div></td>
                 <td class="mi-td-exp">${formatMoney(g.totalExp)}</td>
-                <td style="color:${g.allPaid ? color.text : "var(--line)"};">${g.allPaid ? formatMoney(g.totalPaid) : "—"}</td>
+                <td style="color:${g.totalPaid > 0 ? color.text : "var(--line)"};">${g.totalPaid > 0 ? formatMoney(g.totalPaid) : "—"}</td>
             </tr>`);
 
     const refundRows = standaloneRefunds.map(bill => {
@@ -5224,7 +5393,7 @@ function updateCurrencyInputDisplay() {
     const symbol = String(data.settings.currencySymbol || "").split("|")[0];
     const isAfter = data.settings.currencyPosition === "after";
 
-    ["billAmountCurrency", "billPaidAmountCurrency"].forEach(id => {
+    ["billAmountCurrency", "billPaidAmountCurrency", "accountCreditLimitCurrency"].forEach(id => {
         const span = document.getElementById(id);
         if (!span) return;
         span.textContent = symbol;
@@ -5239,12 +5408,14 @@ function updateCurrencyInputDisplay() {
 }
 
 function formatMoney(amount) {
-    const value = Number(amount || 0).toFixed(2);
+    const num = Number(amount || 0);
+    const sign = num < 0 ? "-" : "";
+    const value = Math.abs(num).toFixed(2);
     const currencySymbol = String(data.settings.currencySymbol || "").split("|")[0];
 
     return data.settings.currencyPosition === "before"
-        ? `${currencySymbol}${value}`
-        : `${value} ${currencySymbol}`;
+        ? `${sign}${currencySymbol}${value}`
+        : `${sign}${value} ${currencySymbol}`;
 }
 
 function formatDisplayDate(date) {
@@ -5706,22 +5877,28 @@ function importJson(event) {
 }
 
 async function exportCsv() {
-    const headers = ["Name", "Category", "Type", "Priority", "Frequency", "Amount", "Actual Amount", "Due Date", "Actual Date", "Paid", "Credit Card", "Notes"];
+    const headers = ["Name", "Category", "Type", "Priority", "Frequency", "Amount", "Actual Amount", "Due Date", "Actual Date", "Paid", "Credit Card", "From Account", "To Account", "Notes"];
 
-    const rows = data.bills.map(bill => [
-        bill.name,
-        bill.category,
-        bill.type || "",
-        data.priorityNames[Number(bill.priority)] || "",
-        bill.frequency || "",
-        bill.amount,
-        bill.actualAmount != null ? bill.actualAmount : "",
-        getBillDisplayDate(bill),
-        bill.actualDate || "",
-        bill.paid ? "Yes" : "No",
-        isFromCreditAccount(bill) ? "Yes" : "No",
-        bill.notes || ""
-    ]);
+    const rows = data.bills.map(bill => {
+        const fromAcc = bill.fromAccount ? (data.accounts || []).find(a => a.id === bill.fromAccount) : null;
+        const toAcc = bill.toAccount ? (data.accounts || []).find(a => a.id === bill.toAccount) : null;
+        return [
+            bill.name,
+            bill.category,
+            bill.type || "",
+            data.priorityNames[Number(bill.priority)] || "",
+            bill.frequency || "",
+            bill.amount,
+            bill.actualAmount != null ? bill.actualAmount : "",
+            getBillDisplayDate(bill),
+            bill.actualDate || "",
+            bill.paid ? "Yes" : "No",
+            isFromCreditAccount(bill) ? "Yes" : "No",
+            fromAcc ? fromAcc.name : "",
+            toAcc ? toAcc.name : "",
+            bill.notes || ""
+        ];
+    });
 
     const csv = [headers, ...rows]
         .map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(","))
@@ -5800,6 +5977,29 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function showHelpIconTooltip(iconEl) {
+    const tip = document.getElementById("helpIconTooltip");
+    if (!tip) return;
+    const rect = iconEl.getBoundingClientRect();
+    const margin = 6;
+    const tipRect = tip.getBoundingClientRect();
+
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+    left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+
+    let top = rect.top - tipRect.height - 8;
+    if (top < margin) top = rect.bottom + 8;
+
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+    tip.classList.add("active");
+}
+
+function hideHelpIconTooltip() {
+    const tip = document.getElementById("helpIconTooltip");
+    if (tip) tip.classList.remove("active");
 }
 
 function saveBillNames(shouldSave = true) {
@@ -6072,7 +6272,7 @@ function openCalBillModal(billId) {
                 <div class="bill-meta bill-main-line" style="justify-content:space-between; padding-right:28px;">
                 <span class="bill-title-inline app-tooltip-trigger"><span class="bill-title-text">${escapeHtml(bill.name)}</span><span class="app-tooltip">${data.priorityNames[Number(bill.priority)] || "Priority"}</span></span>
                 <span class="bill-amount-wrap">
-    ${bill.actualAmount != null && Number(bill.actualAmount) !== Number(bill.amount)
+    ${bill.actualAmount != null && Number(bill.amount) > 0 && Number(bill.actualAmount) !== Number(bill.amount)
             ? `<span class="bill-original-amount">${formatMoney(bill.amount)}</span>`
             : ""
         }
@@ -6267,6 +6467,20 @@ function openAccountModal(id) {
         } else {
             dateEl.classList.remove("has-value");
         }
+        const limitRow = document.getElementById("accountCreditLimitRow");
+        const limitEl = document.getElementById("accountCreditLimit");
+        if (acc.type === "credit" && limitRow && limitEl) {
+            limitRow.style.display = "";
+            if (acc.creditLimit) {
+                limitEl.value = parseFloat(acc.creditLimit).toFixed(2);
+                limitEl.classList.add("has-value");
+            } else {
+                limitEl.value = "";
+                limitEl.classList.remove("has-value");
+            }
+        } else if (limitRow) {
+            limitRow.style.display = "none";
+        }
     } else {
         const deleteBtn = document.getElementById("accountDeleteBtn");
         if (deleteBtn) deleteBtn.style.display = "none";
@@ -6287,6 +6501,10 @@ function openAccountModal(id) {
         dateEl.type = "date";
         const tip = document.getElementById("balanceCreditTip");
         if (tip) tip.style.display = "none";
+        const limitRow = document.getElementById("accountCreditLimitRow");
+        if (limitRow) limitRow.style.display = "none";
+        const limitEl = document.getElementById("accountCreditLimit");
+        if (limitEl) { limitEl.value = ""; limitEl.classList.remove("has-value"); }
     }
 
     balEl.onfocus = function() {
@@ -6312,7 +6530,12 @@ function openAccountModal(id) {
         if (tip) tip.style.display = "none";
     };
 
-    typeEl.onchange = function() {};
+    typeEl.onchange = function() {
+        const limitRow = document.getElementById("accountCreditLimitRow");
+        const limitEl = document.getElementById("accountCreditLimit");
+        if (limitRow) limitRow.style.display = this.value === "credit" ? "" : "none";
+        if (limitEl && this.value !== "credit") { limitEl.value = ""; limitEl.classList.remove("has-value"); }
+    };
 
     balEl.removeEventListener("focus", balEl._focusHandler);
     balEl.onblur = function() {
@@ -6347,33 +6570,40 @@ function saveAccount() {
     const typeEl = document.getElementById("accountType");
     const balEl2 = document.getElementById("accountBalance");
     const dateEl2 = document.getElementById("accountStartDate");
-    [nameEl, typeEl, balEl2, dateEl2].forEach(el => el.classList.remove("field-error"));
+    const limitEl2 = document.getElementById("accountCreditLimit");
+    [nameEl, typeEl, balEl2, dateEl2, limitEl2].forEach(el => el && el.classList.remove("field-error"));
+    limitEl2?.closest(".amount-input-wrap")?.classList.remove("field-error");
 
     let hasError = false;
     if (!name) { nameEl.classList.add("field-error"); nameEl.focus(); hasError = true; }
     if (!type) { typeEl.classList.add("field-error"); if (!hasError) typeEl.focus(); hasError = true; }
     if (balEl2.value === "") { balEl2.classList.add("field-error"); if (!hasError) balEl2.focus(); hasError = true; }
     if (!dateEl2.value) { dateEl2.classList.add("field-error"); if (!hasError) dateEl2.focus(); hasError = true; }
+    if (type === "credit" && (!limitEl2 || limitEl2.value === "" || parseFloat(limitEl2.value) <= 0)) {
+        if (limitEl2) { limitEl2.closest(".amount-input-wrap")?.classList.add("field-error"); if (!hasError) limitEl2.focus(); }
+        hasError = true;
+    }
     if (hasError) return;
+
+    const creditLimit = type === "credit" ? (parseFloat(limitEl2?.value) || null) : null;
 
     if (editingAccountId) {
         const idx = data.accounts.findIndex(a => a.id === editingAccountId);
         if (idx !== -1) {
-            data.accounts[idx] = { ...data.accounts[idx], name, type, startBalance, startDate };
+            const updated = { ...data.accounts[idx], name, type, startBalance, startDate };
+            if (type === "credit") { updated.creditLimit = creditLimit; } else { delete updated.creditLimit; }
+            data.accounts[idx] = updated;
         }
     } else {
-        data.accounts.push({
-            id: crypto.randomUUID(),
-            name,
-            type,
-            startBalance,
-            startDate
-        });
+        const newAccData = { id: crypto.randomUUID(), name, type, startBalance, startDate };
+        if (type === "credit" && creditLimit) newAccData.creditLimit = creditLimit;
+        data.accounts.push(newAccData);
     }
 
     saveData();
     closeAccountModal();
     renderAccountsCols();
+    if (typeof renderAccountsPage === "function") renderAccountsPage();
 }
 
 function deleteAccount(id) {
@@ -6609,6 +6839,8 @@ function openAccountModalWithType(type) {
     if (typeEl) typeEl.value = type;
     document.getElementById("accountModal").classList.add("from-col");
     document.getElementById("accountTypeRow").style.display = "none";
+    const limitRow = document.getElementById("accountCreditLimitRow");
+    if (limitRow) limitRow.style.display = type === "credit" ? "" : "none";
     if (col) {
         const title = document.getElementById("accountModalTitle");
         if (title) title.textContent = `${col.emoji} Add ${col.label} Account`;

@@ -7,6 +7,7 @@ const FILES_TO_CACHE = [
   'app.js',
   'paycheck.js',
   'accounts.js',
+  'manifest.json',
   'icon-512.png'
 ];
 
