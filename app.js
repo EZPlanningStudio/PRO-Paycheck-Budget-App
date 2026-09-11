@@ -254,7 +254,6 @@ function extendRecurringSeries() {
     const seriesMap = {};
     for (const bill of data.bills) {
         if (bill.frequency === "one-time") continue;
-        if (bill.endDate) continue;
         if (!seriesMap[bill.seriesId]) seriesMap[bill.seriesId] = [];
         seriesMap[bill.seriesId].push(bill);
     }
@@ -268,7 +267,9 @@ function extendRecurringSeries() {
         );
 
         const lastDate = parseLocalDate(last.dueDate);
-        if (lastDate >= endOfNextYear) continue;
+        const seriesEndDate = last.endDate ? parseLocalDate(last.endDate) : null;
+        const extendTo = seriesEndDate && seriesEndDate < endOfNextYear ? seriesEndDate : endOfNextYear;
+        if (lastDate >= extendTo) continue;
 
         // Calculează next occurrence de la lastDate
         const next = new Date(lastDate);
@@ -279,7 +280,7 @@ function extendRecurringSeries() {
             case "yearly": next.setFullYear(next.getFullYear() + last.interval); break;
         }
 
-        if (next > endOfNextYear) continue;
+        if (next > extendTo) continue;
 
         // Generează de la next în continuare
         const template = { ...last };
@@ -476,7 +477,7 @@ function saveData() {
         const currentSnapshot = cloneAppData();
 
         if (!lastSavedSnapshot) {
-            lastSavedSnapshot = structuredClone(currentSnapshot);
+            lastSavedSnapshot = currentSnapshot;
         } else if (!snapshotsEqual(lastSavedSnapshot, currentSnapshot)) {
             undoStack.push({
                 snapshot: structuredClone(lastSavedSnapshot)
@@ -487,7 +488,7 @@ function saveData() {
             }
 
             redoStack = [];
-            lastSavedSnapshot = structuredClone(currentSnapshot);
+            lastSavedSnapshot = currentSnapshot;
         }
     }
 
@@ -1500,6 +1501,7 @@ const sectionConfig = {
     backup: { main: "Backup", getLabel: null },
     quickstart: { main: "quick start", secondary: "guide", getLabel: null },
     contact: { main: "contact", secondary: "us", getLabel: null },
+    faq: { main: "FAQ", getLabel: null },
     accounts: { main: "accounts", secondary: "bank", getLabel: null },
 };
 
@@ -1579,7 +1581,7 @@ function showSection(section) {
     renderPageHeader(section);
 
     const config = sectionConfig[section];
-    document.getElementById("pageTitle").classList.remove("page-calendar", "page-list", "page-monthly", "page-yearly", "page-settings", "page-backup", "page-quickstart", "page-contact", "page-accounts");
+    document.getElementById("pageTitle").classList.remove("page-calendar", "page-list", "page-monthly", "page-yearly", "page-settings", "page-backup", "page-quickstart", "page-contact", "page-faq", "page-accounts");
     document.getElementById("pageTitle").classList.add(`page-${section}`);
 
     if (config && typeof config.main !== "undefined") {
@@ -1592,7 +1594,12 @@ function showSection(section) {
     updateSectionLabel(section);
 
     if (section === "list") {
+        renderBills();
         if (typeof openTransactionListInfoModal === "function") openTransactionListInfoModal();
+    }
+
+    if (section === "settings") {
+        renderSettings();
     }
 
     if (section === "calendar") {
@@ -1630,11 +1637,11 @@ function renderAll() {
     const activeSection = currentActiveSection;
     renderPageHeader(activeSection);
     renderFilterOptions();
-    renderBills();
-    renderCalendar();
-    renderMonthlyInsights();
-    renderYearlySummary();
-    renderSettings();
+    if (activeSection === "list") renderBills();
+    if (activeSection === "calendar") renderCalendar();
+    if (activeSection === "monthly") renderMonthlyInsights();
+    if (activeSection === "yearly") renderYearlySummary();
+    if (activeSection === "settings") renderSettings();
     updateCurrencyInputDisplay();
     if (typeof renderAccountsPage === "function" && activeSection === "accounts") renderAccountsPage();
 }
@@ -1844,7 +1851,8 @@ function renderSettings() {
 
 const HIDEABLE_MENU_ITEMS = [
     { section: "quickstart", label: "Quick Start Guide" },
-    { section: "contact", label: "Contact" }
+    { section: "contact", label: "Contact" },
+    { section: "faq", label: "FAQ" }
 ];
 
 function renderMenuVisibilitySettings() {
@@ -1866,7 +1874,8 @@ function renderMenuVisibilitySettings() {
 function generateRecurringBills(bill) {
     const bills = [];
     const endOfNextYear = new Date(new Date().getFullYear() + 1, 11, 31);
-    const limitDate = bill.endDate ? parseLocalDate(bill.endDate) : endOfNextYear;
+    const billEndDate = bill.endDate ? parseLocalDate(bill.endDate) : null;
+    const limitDate = billEndDate && billEndDate < endOfNextYear ? billEndDate : endOfNextYear;
 
     let current = parseLocalDate(bill.dueDate);
     let count = 0;
@@ -1943,6 +1952,14 @@ function showActivationModal() {
 function toggleBackupGuide() {
   const body = document.getElementById('backupGuideBody');
   const chevron = document.getElementById('backupGuideChevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function toggleFaqItem(btn) {
+  const body = btn.nextElementSibling;
+  const chevron = btn.querySelector('.backup-guide-chevron');
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
   chevron.classList.toggle('open', !isOpen);
@@ -2957,7 +2974,7 @@ function renderPageHeader(section) {
 
     if (!pageHeader || !summaryGrid) return;
 
-    const hidden = ["settings", "backup", "quickstart"];
+    const hidden = ["settings", "backup", "quickstart", "faq"];
     if (hidden.includes(section)) {
         pageHeader.style.display = "none";
         document.querySelector("main")?.classList.add("no-header");
@@ -3076,8 +3093,11 @@ function renderPageHeader(section) {
         const rightLabels = labelSegs.filter(s => s.label !== "left to spend")
             .map(s => `<span style="color:${s.color};font-size:10px;white-space:nowrap;">${s.label === "Debt Payments" ? "Debts" : s.label} <strong>${formatMoney(s.amount)}</strong></span>`)
             .join("&nbsp;&nbsp;&nbsp;");
-        const leftLabel = labelSegs.find(s => s.label === "left to spend");
-        const leftHtml = leftLabel ? `<span style="color:var(--mint-text);font-size:12px;white-space:nowrap;"><span class="help-icon" data-help-title="Left to Spend — How it works" data-help="This is the amount of cash available after receiving income, setting aside savings, investing, and paying cash/debit expenses.&lt;br&gt;&lt;br&gt;Any payment made with a &lt;strong&gt;credit card&lt;/strong&gt; is &lt;strong&gt;not deducted&lt;/strong&gt; from this amount — it appears in your category totals but doesn't affect your available cash.&lt;br&gt;&lt;br&gt;Formula: Rollover + Income received − Savings − Investments − Cash expenses" style="cursor:pointer;margin-right:4px;">📊</span>Left to spend <strong>${formatMoney(leftLabel.amount)}</strong></span>` : "";
+        const leftHtml = totalBase > 0
+            ? (amountLeft >= -0.005
+                ? `<span style="color:var(--mint-text);font-size:12px;white-space:nowrap;"><span class="help-icon" data-help-title="Left to Spend — How it works" data-help="This is the amount of cash available after receiving income, setting aside savings, investing, and paying cash/debit expenses.&lt;br&gt;&lt;br&gt;Any payment made with a &lt;strong&gt;credit card&lt;/strong&gt; is &lt;strong&gt;not deducted&lt;/strong&gt; from this amount — it appears in your category totals but doesn't affect your available cash.&lt;br&gt;&lt;br&gt;Formula: Rollover + Income received − Savings − Investments − Cash expenses" style="cursor:pointer;margin-right:4px;">📊</span>Left to spend <strong>${formatMoney(amountLeft)}</strong></span>`
+                : `<span style="color:var(--red);font-size:12px;white-space:nowrap;"><span class="help-icon" data-help-title="Overspent — How it works" data-help="This means your savings, investments, and cash/debit expenses added up to more than your rollover plus income received.&lt;br&gt;&lt;br&gt;Any payment made with a &lt;strong&gt;credit card&lt;/strong&gt; is &lt;strong&gt;not counted&lt;/strong&gt; here — it appears in your category totals but doesn't affect your available cash.&lt;br&gt;&lt;br&gt;Formula: Rollover + Income received − Savings − Investments − Cash expenses" style="cursor:pointer;margin-right:4px;">📊</span>Overspent by <strong>${formatMoney(Math.abs(amountLeft))}</strong></span>`)
+            : "";
 
         ipb.innerHTML = `
             <div class="ipb-track"><div class="ipb-segments">${segHtml || '<div style="width:100%;height:100%;background:var(--bar-bg);"></div>'}</div></div>
@@ -3536,6 +3556,12 @@ function toggleCalDrawer(forceState) {
     });
 }
 
+function getWeekStartIndex() {
+    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const idx = days.indexOf(data.settings.weekStart);
+    return idx === -1 ? 0 : idx;
+}
+
 function renderCalendar() {
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
@@ -3609,16 +3635,16 @@ function renderCalendar() {
         }, 0);
     }
 
-    const weekStartMonday = data.settings.weekStart === "monday";
+    const weekStartIdx = getWeekStartIndex();
     const isMobileView = window.innerWidth <= 550;
-    const dayNames = weekStartMonday
-        ? (isMobileView ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-        : (isMobileView ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
+    const rotateWeek = arr => arr.slice(weekStartIdx).concat(arr.slice(0, weekStartIdx));
+    const dayNames = isMobileView
+        ? rotateWeek(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+        : rotateWeek(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    let startOffset = firstDay.getDay();
-    if (weekStartMonday) startOffset = (startOffset + 6) % 7;
+    let startOffset = (firstDay.getDay() - weekStartIdx + 7) % 7;
 
     const statusFilter = document.getElementById("calFilterStatus")?.value ?? "";
     const priorityFilter = document.getElementById("calFilterPriority")?.value ?? "";
@@ -3627,7 +3653,7 @@ function renderCalendar() {
     const yearFilter = document.getElementById("calFilterYear")?.value ?? "";
 
     const cells = [];
-    const weekendColIndexes = weekStartMonday ? [5, 6] : [0, 6];
+    const weekendColIndexes = [(0 - weekStartIdx + 7) % 7, (6 - weekStartIdx + 7) % 7];
     dayNames.forEach((name, i) => {
         const isWknd = weekendColIndexes.includes(i);
         cells.push(`<div class="day-name${isWknd ? ' weekend' : ''}">${name}</div>`);
@@ -3653,7 +3679,7 @@ function renderCalendar() {
     for (let day = 1; day <= lastDay.getDate(); day++) {
         const dateString = toLocalDateInputValue(new Date(year, month, day));
         const dayOfWeek = new Date(year, month, day).getDay();
-        const isWeekend = weekendColIndexes.includes(weekStartMonday ? (dayOfWeek + 6) % 7 : dayOfWeek);
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
         const isToday = dateString === todayString;
 
         const bills = applyBillFilters(data.bills, { statusFilter, priorityFilter, categoryFilter, monthFilter, yearFilter, dateString });
@@ -3783,13 +3809,12 @@ function renderMiniCalendar(containerId = "miniCalendar") {
     const month = currentCalendarDate.getMonth();
     const today = new Date();
 
-    const weekStartMonday = data.settings.weekStart === "monday";
+    const weekStartIdx = getWeekStartIndex();
 
-    const dayNames = weekStartMonday
-        ? ["M", "T", "W", "T", "F", "S", "S"]
-        : ["S", "M", "T", "W", "T", "F", "S"];
+    const fullLetters = ["S", "M", "T", "W", "T", "F", "S"];
+    const dayNames = fullLetters.slice(weekStartIdx).concat(fullLetters.slice(0, weekStartIdx));
 
-    const weekendIndexes = weekStartMonday ? [5, 6] : [0, 6];
+    const weekendIndexes = [(0 - weekStartIdx + 7) % 7, (6 - weekStartIdx + 7) % 7];
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -3806,8 +3831,7 @@ function renderMiniCalendar(containerId = "miniCalendar") {
     ).join("")}
 `;
 
-    let offset = firstDay.getDay();
-    if (weekStartMonday) offset = (offset + 6) % 7;
+    let offset = (firstDay.getDay() - weekStartIdx + 7) % 7;
 
     for (let i = 0; i < offset; i++) {
         html += `<div></div>`;
@@ -4849,7 +4873,7 @@ const payments = yearBills.filter(b => b.paid && spendingCats.includes(b.categor
 
     // Tabel
     const tableRows = top5.length === 0
-        ? `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:16px;">No paid spendings this year</td></tr>`
+        ? `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:16px;">No paid outflows this year</td></tr>`
         : top5.map((g, i) => {
         const shade = peachShades[i % peachShades.length];
         return `<tr>
@@ -4862,15 +4886,15 @@ const payments = yearBills.filter(b => b.paid && spendingCats.includes(b.categor
     return `
         <div class="mi-cat-card">
             <div class="mi-cat-header" style="background:var(--peach);">
-                <div class="mi-cat-header-name">TOP 5 SPENDINGS IN ${year}</div>
+                <div class="mi-cat-header-name">TOP 5 OUTFLOWS IN ${year}</div>
             </div>
             <div class="mi-donut-section">
-                <svg viewBox="0 0 180 180" role="img" class="mi-donut-svg" aria-label="Top 5 spendings ${year}">
+                <svg viewBox="0 0 180 180" role="img" class="mi-donut-svg" aria-label="Top 5 outflows ${year}">
                     ${donutSegments}
                     <text x="${CX}" y="${CY - 6}" text-anchor="middle" font-size="15" font-weight="700" fill="var(--peach-text)">${year}</text>
                     <text x="${CX}" y="${CY + 10}" text-anchor="middle" font-size="11" fill="#999">TOP 5</text>
                 </svg>
-                <div class="mi-donut-legend">${legendItems || '<span style="font-size:11px;color:var(--muted);">No paid spendings this year</span>'}</div>
+                <div class="mi-donut-legend">${legendItems || '<span style="font-size:11px;color:var(--muted);">No paid outflows this year</span>'}</div>
             </div>
             <div class="mi-table-scroll mi-table-summary" style="background:var(--peach-soft-3);">
                 <table class="mi-cat-table">
@@ -5725,7 +5749,7 @@ async function autoSaveToBackup() {
         const fileName = "pro-paycheck-v1-backup.json";
         const activated = localStorage.getItem("proPaycheckActivated");
         const exportData = activated ? { ...data, _activated: true } : data;
-        const json = JSON.stringify(exportData, null, 2);
+        const json = JSON.stringify(exportData);
         const blob = new Blob([json], { type: "application/json" });
 
         const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
