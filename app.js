@@ -5700,6 +5700,10 @@ async function importLatestBackup() {
             return;
         }
 
+        if (imported._activated) {
+            localStorage.setItem("proPaycheckActivated", "true");
+        }
+
         data = normalizeAppData(imported);
 
         saveData();
@@ -5765,7 +5769,9 @@ async function autoSaveToBackup() {
 
 async function exportJson() {
     const fileName = "pro-paycheck-v1-backup.json";
-    const json = JSON.stringify(data, null, 2);
+    const activated = localStorage.getItem("proPaycheckActivated");
+    const exportData = activated ? { ...data, _activated: true } : data;
+    const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
 
     if (!window.showDirectoryPicker) {
